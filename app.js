@@ -241,12 +241,12 @@ function renderMessages() {
     avatar.className = "avatar";
     if (message.role === "assistant") {
       const image = document.createElement("img");
-      image.src = "/assets/agent-avatar.png?v=20260610";
+      image.src = "/assets/agent-avatar.png?v=20260610-avatar2";
       image.alt = "";
       avatar.append(image);
     } else {
       const image = document.createElement("img");
-      image.src = "/assets/user-avatar.png?v=20260610";
+      image.src = "/assets/user-avatar.png?v=20260610-avatar2";
       image.alt = "";
       avatar.append(image);
     }
