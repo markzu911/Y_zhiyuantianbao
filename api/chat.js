@@ -89,7 +89,7 @@ export default async function handler(request, response) {
       body: JSON.stringify({
         model: ZAI_MODEL,
         messages: [{ role: "system", content: SYSTEM_PROMPT }, ...userMessages],
-        thinking: { type: "enabled" },
+        thinking: { type: "disabled" },
         temperature: 0.75,
         max_tokens: 4096,
         stream: true,

@@ -34,6 +34,8 @@ const contentTypes = {
   ".png": "image/png",
 };
 
+const noCacheTypes = new Set([".html", ".js", ".css"]);
+
 const apiHandlers = {
   "/api/chat": chatHandler,
   "/api/tool/launch": launchHandler,
@@ -91,7 +93,11 @@ const server = createServer(async (request, response) => {
     const url = request.url === "/" ? "/index.html" : request.url;
     const filePath = join(ROOT, decodeURIComponent(url.split("?")[0]));
     const data = await readFile(filePath);
-    response.setHeader("Content-Type", contentTypes[extname(filePath)] || "text/plain");
+    const extension = extname(filePath);
+    response.setHeader("Content-Type", contentTypes[extension] || "text/plain");
+    if (noCacheTypes.has(extension)) {
+      response.setHeader("Cache-Control", "no-store");
+    }
     response.end(data);
   } catch {
     response.statusCode = 404;
