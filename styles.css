@@ -24,6 +24,7 @@
 body {
   margin: 0;
   min-height: 100vh;
+  min-height: 100dvh;
   background:
     linear-gradient(135deg, rgba(37, 99, 216, 0.08) 0 18%, transparent 18% 100%),
     linear-gradient(315deg, rgba(31, 122, 100, 0.08) 0 20%, transparent 20% 100%),
@@ -45,6 +46,7 @@ button {
   grid-template-rows: auto minmax(0, 1fr);
   width: min(calc(100% - 28px), 1120px);
   height: calc(100vh - 28px);
+  height: calc(100dvh - 28px);
   margin: 14px auto;
   overflow: hidden;
   border: 1px solid var(--line);
@@ -329,7 +331,7 @@ button {
 
 textarea {
   width: 100%;
-  min-height: 46px;
+  min-height: 50px;
   max-height: 132px;
   resize: none;
   border: 1px solid var(--line);
@@ -351,8 +353,8 @@ textarea:focus {
 }
 
 #send-button {
-  width: 48px;
-  height: 48px;
+  width: 50px;
+  height: 50px;
   border: 0;
   border-radius: 12px;
   background: linear-gradient(135deg, var(--blue), #1f7a64);
@@ -377,23 +379,68 @@ textarea:focus {
   opacity: 0.7;
 }
 
+@media (max-width: 900px) and (min-width: 761px) {
+  .app-shell {
+    width: min(calc(100% - 18px), 760px);
+    height: calc(100vh - 18px);
+    height: calc(100dvh - 18px);
+    margin: 9px auto;
+  }
+
+  .composer {
+    grid-template-columns: minmax(0, 1fr) 56px;
+    gap: 10px;
+    padding: 14px 14px 16px;
+  }
+
+  textarea {
+    min-height: 54px;
+    padding: 15px 14px;
+    line-height: 1.45;
+  }
+
+  #send-button {
+    width: 54px;
+    height: 54px;
+    font-size: 23px;
+  }
+}
+
 @media (max-width: 760px) {
+  body {
+    background: var(--surface);
+  }
+
   .app-shell {
     width: 100%;
     height: 100vh;
+    height: 100dvh;
     margin: 0;
     border: 0;
     border-radius: 0;
+    box-shadow: none;
   }
 
   .topbar {
     align-items: center;
     min-height: auto;
-    padding: 14px;
+    gap: 10px;
+    padding: calc(10px + env(safe-area-inset-top)) 12px 10px;
+  }
+
+  .brand {
+    gap: 10px;
+  }
+
+  .brand-mark {
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
   }
 
   .brand h1 {
-    font-size: 20px;
+    font-size: 19px;
+    white-space: nowrap;
   }
 
   .top-actions {
@@ -402,16 +449,33 @@ textarea:focus {
 
   .credits-pill {
     min-height: 34px;
-    padding: 0 10px;
+    gap: 6px;
+    padding: 0 9px;
+  }
+
+  .credits-pill span {
+    font-size: 12px;
+  }
+
+  .credits-pill strong {
+    font-size: 13px;
   }
 
   .ghost-button {
     min-width: auto;
-    padding: 0 10px;
+    min-height: 34px;
+    padding: 0 9px;
+    font-size: 13px;
   }
 
   .messages {
-    padding: 18px 14px 28px;
+    gap: 16px;
+    padding: 16px 12px 24px;
+    scrollbar-gutter: auto;
+  }
+
+  .message-row {
+    gap: 9px;
   }
 
   .avatar {
@@ -424,18 +488,113 @@ textarea:focus {
 
   .message,
   .message-row.user .message {
-    max-width: calc(100% - 46px);
-    width: calc(100% - 46px);
+    max-width: calc(100% - 43px);
+    width: calc(100% - 43px);
     padding: 13px 14px;
+    border-radius: 11px;
+    font-size: 15px;
+    line-height: 1.72;
+    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.07);
   }
 
   .composer {
-    padding: 10px;
+    gap: 9px;
+    padding: 12px 12px calc(12px + env(safe-area-inset-bottom));
     grid-template-columns: minmax(0, 1fr) 48px;
   }
 
+  textarea {
+    min-height: 50px;
+    padding: 14px 12px;
+    font-size: 15px;
+  }
+
   #send-button {
-    width: 46px;
-    height: 46px;
+    width: 50px;
+    height: 50px;
+  }
+}
+
+@media (max-width: 520px) {
+  .topbar {
+    flex-wrap: wrap;
+  }
+
+  .brand {
+    flex: 1 1 auto;
+  }
+
+  .top-actions {
+    flex: 0 0 auto;
+  }
+
+  .credits-pill {
+    max-width: 96px;
+  }
+
+  .message-row.user .message {
+    width: fit-content;
+    max-width: calc(100% - 43px);
+  }
+}
+
+@media (max-width: 380px) {
+  .topbar {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .brand h1 {
+    font-size: 17px;
+  }
+
+  .brand-mark {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+  }
+
+  .credits-pill span {
+    display: none;
+  }
+
+  .ghost-button {
+    padding: 0 8px;
+  }
+
+  .messages {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+}
+
+@media (max-height: 620px) and (min-width: 761px) {
+  .app-shell {
+    height: 100vh;
+    height: 100dvh;
+    margin-top: 0;
+    margin-bottom: 0;
+    border-radius: 0;
+  }
+
+  .topbar {
+    min-height: 66px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+  }
+
+  .brand-mark {
+    width: 40px;
+    height: 40px;
+  }
+
+  .messages {
+    padding-top: 18px;
+    padding-bottom: 24px;
+  }
+
+  .composer {
+    padding-top: 10px;
+    padding-bottom: 10px;
   }
 }
