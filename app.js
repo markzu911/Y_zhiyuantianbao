@@ -16,9 +16,6 @@ const welcomeMessage = {
     "你要问志愿，别上来就问“某某专业好不好”。先把省份、分数或位次、选科、家庭条件、想去的城市、能不能接受读研说清楚。你信息给得越实，判断越不忽悠。",
 };
 
-const OUT_OF_SCOPE_MESSAGE =
-  "这个问题不在择校小智的服务范围内。我主要帮你分析高考升学、院校选择、专业取舍和就业方向。你可以把省份、分数/位次、选科、家庭情况和目标城市发给我，我再帮你判断。";
-
 let messages = loadMessages();
 let saasState = loadSaasState();
 
@@ -313,44 +310,10 @@ function parseSseChunk(chunk, onEvent) {
   return rest;
 }
 
-function isLikelyInScope(content) {
-  const text = content.toLowerCase();
-  const helpPatterns = [
-    /你好|您好|在吗|你是谁|你会什么|你能做什么|怎么用|如何使用|使用说明|帮助|介绍一下|功能|能帮我什么/,
-  ];
-  const inScopePatterns = [
-    /高考|志愿|择校|院校|大学|学校|专业|选科|文科|理科|物理|历史|化学|生物|政治|地理/,
-    /分数|位次|排名|省排|录取|投档|调剂|本科|专科|一本|二本|211|985|双一流|双非/,
-    /考研|保研|就业|薪资|工资|行业|城市|省份|河南|山东|河北|江苏|浙江|广东|四川|湖北|湖南|安徽|江西|福建|北京|上海|天津|重庆/,
-    /计算机|电子信息|临床|口腔|法学|汉语言|新闻|金融|会计|师范|护理|土木|机械|电气|自动化|软件|人工智能/,
-  ];
-  const outOfScopePatterns = [
-    /写代码|编程|股票|基金|比特币|彩票|看病|症状|律师|合同|离婚|恋爱|星座|八字|做饭|菜谱|旅游|翻译|作文|小说|电影|游戏/,
-    /javascript|python|java|react|vue|sql|linux|windows|bug|api|html|css/,
-  ];
-
-  if (helpPatterns.some((pattern) => pattern.test(text))) return true;
-  if (inScopePatterns.some((pattern) => pattern.test(text))) return true;
-  if (outOfScopePatterns.some((pattern) => pattern.test(text))) return false;
-
-  return false;
-}
-
 async function sendMessage(content) {
   messages.push({ role: "user", content });
   saveMessages();
   renderMessages();
-
-  if (!isLikelyInScope(content)) {
-    messages.push({
-      role: "assistant",
-      content: OUT_OF_SCOPE_MESSAGE,
-    });
-    saveMessages();
-    renderMessages();
-    input.focus();
-    return;
-  }
 
   setLoading(true);
 
