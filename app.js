@@ -239,7 +239,17 @@ function renderMessages() {
 
     const avatar = document.createElement("div");
     avatar.className = "avatar";
-    avatar.textContent = message.role === "assistant" ? "志" : "我";
+    if (message.role === "assistant") {
+      const image = document.createElement("img");
+      image.src = "/assets/agent-avatar.png";
+      image.alt = "";
+      avatar.append(image);
+    } else {
+      const image = document.createElement("img");
+      image.src = "/assets/user-avatar.png";
+      image.alt = "";
+      avatar.append(image);
+    }
 
     const bubble = document.createElement("div");
     bubble.className = "message";
