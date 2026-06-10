@@ -315,6 +315,9 @@ function parseSseChunk(chunk, onEvent) {
 
 function isLikelyInScope(content) {
   const text = content.toLowerCase();
+  const helpPatterns = [
+    /你好|您好|在吗|你是谁|你会什么|你能做什么|怎么用|如何使用|使用说明|帮助|介绍一下|功能|能帮我什么/,
+  ];
   const inScopePatterns = [
     /高考|志愿|择校|院校|大学|学校|专业|选科|文科|理科|物理|历史|化学|生物|政治|地理/,
     /分数|位次|排名|省排|录取|投档|调剂|本科|专科|一本|二本|211|985|双一流|双非/,
@@ -326,6 +329,7 @@ function isLikelyInScope(content) {
     /javascript|python|java|react|vue|sql|linux|windows|bug|api|html|css/,
   ];
 
+  if (helpPatterns.some((pattern) => pattern.test(text))) return true;
   if (inScopePatterns.some((pattern) => pattern.test(text))) return true;
   if (outOfScopePatterns.some((pattern) => pattern.test(text))) return false;
 
