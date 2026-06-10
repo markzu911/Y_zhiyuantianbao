@@ -3,6 +3,9 @@ import { existsSync, readFileSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { extname, join } from "node:path";
 import chatHandler from "./api/chat.js";
+import launchHandler from "./api/tool/launch.js";
+import verifyHandler from "./api/tool/verify.js";
+import consumeHandler from "./api/tool/consume.js";
 
 const PORT = Number(process.env.PORT || 3000);
 const ROOT = process.cwd();
@@ -28,6 +31,13 @@ const contentTypes = {
   ".css": "text/css; charset=utf-8",
   ".js": "text/javascript; charset=utf-8",
   ".json": "application/json; charset=utf-8",
+};
+
+const apiHandlers = {
+  "/api/chat": chatHandler,
+  "/api/tool/launch": launchHandler,
+  "/api/tool/verify": verifyHandler,
+  "/api/tool/consume": consumeHandler,
 };
 
 function readJsonBody(request) {
@@ -67,9 +77,11 @@ function createVercelLikeResponse(response) {
 
 const server = createServer(async (request, response) => {
   try {
-    if (request.url === "/api/chat") {
+    const pathname = request.url.split("?")[0];
+    const apiHandler = apiHandlers[pathname];
+    if (apiHandler) {
       const body = await readJsonBody(request);
-      return chatHandler(
+      return apiHandler(
         { method: request.method, body },
         createVercelLikeResponse(response),
       );

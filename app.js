@@ -3,9 +3,12 @@ const form = document.querySelector("#chat-form");
 const input = document.querySelector("#message-input");
 const sendButton = document.querySelector("#send-button");
 const newChatButton = document.querySelector("#new-chat-button");
+const creditsBalance = document.querySelector("#credits-balance");
 
 const STORAGE_KEY = "gaokao-chat-messages-v1";
+const SAAS_STATE_KEY = "gaokao-saas-state-v1";
 const MAX_LOCAL_MESSAGES = 60;
+const DEFAULT_TOOL_ID = "gaokao-volunteer-assistant";
 
 const welcomeMessage = {
   role: "assistant",
@@ -14,6 +17,7 @@ const welcomeMessage = {
 };
 
 let messages = loadMessages();
+let saasState = loadSaasState();
 
 function stripDisclaimer(text) {
   const lines = text.split(/\r?\n/);
@@ -27,6 +31,95 @@ function stripDisclaimer(text) {
   }
   const cleaned = lines.join("\n").replace(/^\s*\n+/, "").trim();
   return cleaned || welcomeMessage.content;
+}
+
+function cleanParam(value) {
+  if (!value || value === "null" || value === "undefined") return "";
+  return value;
+}
+
+function loadSaasState() {
+  const params = new URLSearchParams(window.location.search);
+  let saved = {};
+  try {
+    saved = JSON.parse(localStorage.getItem(SAAS_STATE_KEY) || "{}");
+  } catch {
+    saved = {};
+  }
+
+  return {
+    userId: cleanParam(params.get("userId")) || cleanParam(saved.userId),
+    toolId:
+      cleanParam(params.get("toolId")) ||
+      cleanParam(saved.toolId) ||
+      DEFAULT_TOOL_ID,
+    user: saved.user || null,
+    tool: saved.tool || null,
+  };
+}
+
+function saveSaasState() {
+  localStorage.setItem(SAAS_STATE_KEY, JSON.stringify(saasState));
+}
+
+function renderCredits(value = saasState.user?.integral) {
+  creditsBalance.textContent =
+    typeof value === "number" || typeof value === "string" ? value : "--";
+}
+
+function applyToolData(data) {
+  if (data?.user) saasState.user = data.user;
+  if (data?.tool) saasState.tool = data.tool;
+  if (typeof data?.currentIntegral !== "undefined") {
+    saasState.user = {
+      ...(saasState.user || {}),
+      integral: data.currentIntegral,
+    };
+  }
+  saveSaasState();
+  renderCredits();
+}
+
+async function postToolApi(path) {
+  if (!saasState.userId || !saasState.toolId) {
+    throw new Error("缺少 userId 或 toolId，无法校验积分");
+  }
+
+  const response = await fetch(path, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      userId: saasState.userId,
+      toolId: saasState.toolId,
+    }),
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok || data.success === false) {
+    throw new Error(data.message || data.error || "积分接口调用失败");
+  }
+  applyToolData(data.data || data);
+  return data;
+}
+
+async function launchTool() {
+  renderCredits();
+  if (!saasState.userId || !saasState.toolId) return;
+  try {
+    await postToolApi("/api/tool/launch");
+  } catch (error) {
+    console.warn(error);
+  }
+}
+
+function mergeSaasInit(payload) {
+  if (!payload || payload.type !== "SAAS_INIT") return;
+  saasState = {
+    ...saasState,
+    userId: cleanParam(payload.userId) || saasState.userId,
+    toolId: cleanParam(payload.toolId) || saasState.toolId,
+  };
+  saveSaasState();
+  launchTool();
 }
 
 function loadMessages() {
@@ -210,6 +303,22 @@ function parseSseChunk(chunk, onEvent) {
 async function sendMessage(content) {
   messages.push({ role: "user", content });
   saveMessages();
+  renderMessages();
+  setLoading(true);
+
+  try {
+    await postToolApi("/api/tool/verify");
+  } catch (error) {
+    messages.push({
+      role: "assistant",
+      content: `积分校验没通过：${error.message}`,
+    });
+    setLoading(false);
+    saveMessages();
+    renderMessages();
+    input.focus();
+    return;
+  }
 
   const loadingMessage = {
     role: "assistant",
@@ -218,7 +327,7 @@ async function sendMessage(content) {
   };
   messages.push(loadingMessage);
   renderMessages();
-  setLoading(true);
+  let generatedSuccessfully = false;
 
   try {
     const response = await fetch("/api/chat", {
@@ -256,12 +365,20 @@ async function sendMessage(content) {
         }
       });
     }
+    generatedSuccessfully = Boolean(stripDisclaimer(loadingMessage.content));
   } catch (error) {
     loadingMessage.loading = false;
     loadingMessage.content = `这次没连上模型：${error.message}`;
   } finally {
     loadingMessage.loading = false;
     loadingMessage.content = stripDisclaimer(loadingMessage.content);
+    if (generatedSuccessfully) {
+      try {
+        await postToolApi("/api/tool/consume");
+      } catch (error) {
+        loadingMessage.content += `\n\n积分扣除失败：${error.message}`;
+      }
+    }
     setLoading(false);
     saveMessages();
     renderMessages();
@@ -295,5 +412,11 @@ newChatButton.addEventListener("click", () => {
   input.focus();
 });
 
+window.addEventListener("message", (event) => {
+  mergeSaasInit(event.data);
+});
+
+renderCredits();
+launchTool();
 renderMessages();
 resizeInput();

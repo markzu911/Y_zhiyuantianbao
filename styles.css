@@ -124,6 +124,33 @@ button {
   gap: 10px;
 }
 
+.credits-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 38px;
+  border: 1px solid rgba(31, 122, 100, 0.22);
+  border-radius: 999px;
+  padding: 0 14px;
+  background: linear-gradient(180deg, #effaf5, #e7f6ef);
+  color: #1f7a64;
+  box-shadow: 0 8px 18px rgba(31, 122, 100, 0.08);
+  white-space: nowrap;
+}
+
+.credits-pill span {
+  color: #477466;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.credits-pill strong {
+  min-width: 2ch;
+  font-size: 15px;
+  font-weight: 850;
+  text-align: right;
+}
+
 .ghost-button {
   min-width: 70px;
   min-height: 38px;
@@ -370,6 +397,11 @@ textarea:focus {
 
   .top-actions {
     gap: 8px;
+  }
+
+  .credits-pill {
+    min-height: 34px;
+    padding: 0 10px;
   }
 
   .ghost-button {
