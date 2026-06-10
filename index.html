@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI 志愿问答</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="topbar">
+        <div class="brand">
+          <div class="brand-mark" aria-hidden="true">志</div>
+          <div>
+            <h1>AI 志愿问答</h1>
+          </div>
+        </div>
+
+        <div class="top-actions">
+          <button id="new-chat-button" class="ghost-button" type="button">新对话</button>
+        </div>
+      </header>
+
+      <section class="chat-panel" aria-label="对话区域">
+        <div id="messages" class="messages" aria-live="polite"></div>
+
+        <form id="chat-form" class="composer">
+          <textarea
+            id="message-input"
+            rows="1"
+            placeholder="输入你的问题..."
+            required
+          ></textarea>
+          <button id="send-button" type="submit" aria-label="发送">➤</button>
+        </form>
+      </section>
+    </main>
+
+    <script src="/app.js" type="module"></script>
+  </body>
+</html>
